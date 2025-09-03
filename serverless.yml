@@ -9,7 +9,7 @@ provider:
   region: ${opt:region, 'us-east-1'}
   environment:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
-    JWT_SECRET: ${env:JWT_SECRET, 'your-secret-key'}
+    JWT_SECRET: ${env:JWT_SECRET}
   tags:
     service: serverless-ecommerce-api
     environment: ${self:provider.stage}

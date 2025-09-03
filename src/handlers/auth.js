@@ -4,11 +4,16 @@ const { v4: uuidv4 } = require('uuid');
 const Joi = require('joi');
 const { put, get } = require('../services/dynamodb');
 const { success, created, badRequest, unauthorized, serverError } = require('../utils/response');
+const { logError } = require('../utils/logger');
 
 const registerSchema = Joi.object({
   email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
-  name: Joi.string().required(),
+  password: Joi.string()
+    .min(8)
+    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])'))
+    .message('Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one special character')
+    .required(),
+  name: Joi.string().min(2).max(50).required(),
 });
 
 const loginSchema = Joi.object({
@@ -22,12 +27,12 @@ module.exports.register = async (event) => {
     
     const { error } = registerSchema.validate({ email, password, name });
     if (error) {
-      return badRequest(error.details[0].message);
+      return badRequest(error.details[0].message, event);
     }
 
     const existingUser = await get({ id: email, type: 'user' });
     if (existingUser) {
-      return badRequest('User already exists');
+      return badRequest('User already exists', event);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -57,10 +62,10 @@ module.exports.register = async (event) => {
         email,
         name,
       },
-    });
+    }, event);
   } catch (error) {
-    console.error('Register error:', error);
-    return serverError('Internal server error');
+    logError('auth.register', error, { action: 'user_registration' });
+    return serverError('Internal server error', event);
   }
 };
 
@@ -70,17 +75,17 @@ module.exports.login = async (event) => {
     
     const { error } = loginSchema.validate({ email, password });
     if (error) {
-      return badRequest(error.details[0].message);
+      return badRequest(error.details[0].message, event);
     }
 
     const user = await get({ id: email, type: 'user' });
     if (!user) {
-      return unauthorized('Invalid credentials');
+      return unauthorized('Invalid credentials', event);
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return unauthorized('Invalid credentials');
+      return unauthorized('Invalid credentials', event);
     }
 
     const token = jwt.sign(
@@ -96,9 +101,9 @@ module.exports.login = async (event) => {
         email: user.id,
         name: user.name,
       },
-    });
+    }, event);
   } catch (error) {
-    console.error('Login error:', error);
-    return serverError('Internal server error');
+    logError('auth.login', error, { action: 'user_login' });
+    return serverError('Internal server error', event);
   }
 };

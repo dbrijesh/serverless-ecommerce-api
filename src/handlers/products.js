@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const Joi = require('joi');
 const { put, get, update, remove, scan } = require('../services/dynamodb');
 const { success, created, badRequest, notFound, serverError } = require('../utils/response');
+const { authenticateToken } = require('../utils/auth');
 
 const productSchema = Joi.object({
   name: Joi.string().required(),
@@ -23,6 +24,12 @@ const updateProductSchema = Joi.object({
 
 module.exports.create = async (event) => {
   try {
+    // Authentication check
+    const authResult = authenticateToken(event);
+    if (!authResult.isValid) {
+      return authResult.response;
+    }
+
     const productData = JSON.parse(event.body);
     
     const { error } = productSchema.validate(productData);
@@ -79,6 +86,12 @@ module.exports.getById = async (event) => {
 
 module.exports.update = async (event) => {
   try {
+    // Authentication check
+    const authResult = authenticateToken(event);
+    if (!authResult.isValid) {
+      return authResult.response;
+    }
+
     const { id } = event.pathParameters;
     const updateData = JSON.parse(event.body);
     
@@ -127,6 +140,12 @@ module.exports.update = async (event) => {
 
 module.exports.delete = async (event) => {
   try {
+    // Authentication check
+    const authResult = authenticateToken(event);
+    if (!authResult.isValid) {
+      return authResult.response;
+    }
+
     const { id } = event.pathParameters;
     
     const existingProduct = await get({ id, type: 'product' });
