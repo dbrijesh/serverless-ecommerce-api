@@ -1,0 +1,171 @@
+service: serverless-ecommerce-api
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
+    JWT_SECRET: ${env:JWT_SECRET, 'your-secret-key'}
+  tags:
+    service: serverless-ecommerce-api
+    environment: ${self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+# plugins:
+#   - serverless-offline
+
+functions:
+  # Authentication
+  register:
+    handler: src/handlers/auth.register
+    tags:
+      service: serverless-ecommerce-api
+      function-type: auth
+      input-schema: auth-register-schema
+    events:
+      - http:
+          path: auth/register
+          method: post
+          cors: true
+
+  login:
+    handler: src/handlers/auth.login
+    tags:
+      service: serverless-ecommerce-api
+      function-type: auth
+      input-schema: auth-login-schema
+    events:
+      - http:
+          path: auth/login
+          method: post
+          cors: true
+
+  # Products
+  createProduct:
+    handler: src/handlers/products.create
+    tags:
+      service: serverless-ecommerce-api
+      function-type: product-management
+      input-schema: product-create-schema
+    events:
+      - http:
+          path: products
+          method: post
+          cors: true
+
+  getProducts:
+    handler: src/handlers/products.getAll
+    tags:
+      service: serverless-ecommerce-api
+      function-type: product-management
+      input-schema: product-list-schema
+    events:
+      - http:
+          path: products
+          method: get
+          cors: true
+
+  getProduct:
+    handler: src/handlers/products.getById
+    tags:
+      service: serverless-ecommerce-api
+      function-type: product-management
+      input-schema: product-get-schema
+    events:
+      - http:
+          path: products/{id}
+          method: get
+          cors: true
+
+  updateProduct:
+    handler: src/handlers/products.update
+    tags:
+      service: serverless-ecommerce-api
+      function-type: product-management
+      input-schema: product-update-schema
+    events:
+      - http:
+          path: products/{id}
+          method: put
+          cors: true
+
+  deleteProduct:
+    handler: src/handlers/products.delete
+    tags:
+      service: serverless-ecommerce-api
+      function-type: product-management
+      input-schema: product-delete-schema
+    events:
+      - http:
+          path: products/{id}
+          method: delete
+          cors: true
+
+  # Orders
+  createOrder:
+    handler: src/handlers/orders.create
+    tags:
+      service: serverless-ecommerce-api
+      function-type: order-management
+      input-schema: order-create-schema
+    events:
+      - http:
+          path: orders
+          method: post
+          cors: true
+
+  getOrders:
+    handler: src/handlers/orders.getAll
+    tags:
+      service: serverless-ecommerce-api
+      function-type: order-management
+      input-schema: order-list-schema
+    events:
+      - http:
+          path: orders
+          method: get
+          cors: true
+
+  getOrder:
+    handler: src/handlers/orders.getById
+    tags:
+      service: serverless-ecommerce-api
+      function-type: order-management
+      input-schema: order-get-schema
+    events:
+      - http:
+          path: orders/{id}
+          method: get
+          cors: true
+
+resources:
+  Resources:
+    TodosDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: type
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: type
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}

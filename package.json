@@ -1,0 +1,41 @@
+{
+  "name": "serverless-ecommerce-api",
+  "version": "1.0.0",
+  "description": "A serverless e-commerce API built with modern cloud technologies",
+  "main": "index.js",
+  "scripts": {
+    "start": "serverless offline",
+    "deploy": "serverless deploy",
+    "remove": "serverless remove",
+    "test": "jest",
+    "lint": "eslint src/**/*.js",
+    "format": "prettier --write src/**/*.js"
+  },
+  "keywords": [
+    "serverless",
+    "ecommerce",
+    "api",
+    "aws",
+    "lambda"
+  ],
+  "author": "dbrijesh",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/util-dynamodb": "^3.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "uuid": "^9.0.0",
+    "joi": "^17.9.0"
+  },
+  "devDependencies": {
+    "serverless": "^3.33.0",
+    "serverless-offline": "^12.0.4",
+    "serverless-webpack": "^5.13.0",
+    "webpack": "^5.88.0",
+    "webpack-node-externals": "^3.0.0",
+    "jest": "^29.6.0",
+    "eslint": "^8.45.0",
+    "prettier": "^3.0.0"
+  }
+}
