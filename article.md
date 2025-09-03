@@ -1165,7 +1165,7 @@ For teams looking to modernize their development practices, this project serves 
 *Security Dashboard: GitHub Security Tab*
 
 **Total Development Time**: Single session  
-**Lines of Code**: ~800 JavaScript + Infrastructure + Tests  
+**Lines of Code**: ~1000 JavaScript + Infrastructure + Tests  
 **Security Score**: 7/10 (Production Ready with recommended enhancements)  
 **Test Coverage**: 83.16% statement coverage  
 **AWS Resources**: 10 Lambda functions + DynamoDB + API Gateway
