@@ -770,6 +770,8 @@ Benefit: Streamlined development workflow
 - [ ] Create troubleshooting guides
 - [ ] Maintain architectural decision records (ADRs)
 
+<img width="994" height="944" alt="image" src="https://github.com/user-attachments/assets/2684f550-fb80-4d16-88b2-dc33588e5315" />
+
 ---
 
 ## Conclusion
